@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Points Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            min-height: calc(100vh - 140px);
+        }
+
+        .panel {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: visible;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        .moonlit {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.15), rgba(155, 89, 182, 0.15));
+        }
+
+        .bloodlit {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(230, 126, 34, 0.15));
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-left: 12px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-icon {
+            font-size: 28px;
+            filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: none;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .search-input:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+        }
+
+        .fruits-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 8px;
+            overflow-x: visible;
+        }
+
+        .fruits-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .fruits-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .fruits-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .fruits-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .rarity-section {
+            margin-bottom: 20px;
+        }
+
+        .rarity-title {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+
+        .rarity-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .common { background: #2ecc71; }
+        .uncommon { background: #3498db; }
+        .rare { background: #9b59b6; }
+        .legendary { background: #f1c40f; }
+        .mythical { background: #e74c3c; }
+        .divine { background: #e67e22; }
+        .prismatic { background: linear-gradient(45deg, #ff0080, #00ff80, #0080ff, #ff8000); }
+
+        .fruit-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .fruit-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2), 
+                        0 0 20px rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .fruit-emoji {
+            font-size: 20px;
+            margin-right: 12px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .fruit-name {
+            flex: 1;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .fruit-inputs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+        }
+
+        .fruit-input {
+            width: 50px;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+
+        .fruit-input::-webkit-outer-spin-button,
+        .fruit-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .fruit-input:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .fruit-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .mutation-select {
+            width: 70px;
+            padding: 6px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .mutation-select:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .mutation-select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .calculate-section {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5),
+                        0 0 30px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, #7c8ae6, #8a5fb8);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 24px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .total-points {
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 8px;
+        }
+
+        .result-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .panel {
+                padding: 20px;
+            }
+            
+            .fruit-inputs {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .fruit-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Moonlit Fruits Panel -->
+        <div class="panel moonlit">
+            <div class="panel-header">
+                <span class="panel-icon">🌙</span>
+                <h2 class="panel-title">Moonlit Fruits</h2>
+            </div>
+            
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="moonlit-search" placeholder="Search moonlit fruits...">
+            </div>
+            
+            <div class="fruits-container" id="moonlit-container">
+                <!-- Fruits will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Bloodlit Fruits Panel -->
+        <div class="panel bloodlit">
+            <div class="panel-header">
+                <span class="panel-icon">🩸</span>
+                <h2 class="panel-title">Bloodlit Fruits</h2>
+            </div>
+            
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="bloodlit-search" placeholder="Search bloodlit fruits...">
+            </div>
+            
+            <div class="fruits-container" id="bloodlit-container">
+                <!-- Fruits will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Calculate Section -->
+        <div class="calculate-section">
+            <button class="calculate-btn" onclick="calculateTotal()">CALCULATE</button>
+            <div class="result hidden" id="result">
+                <div class="total-points" id="total-points">0</div>
+                <div class="result-label">TOTAL LUNAR POINTS</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fruitData = {
+            moonlit: {
+                points: { common: 1, uncommon: 2, rare: 3, legendary: 4, mythical: 5, divine: 6, prismatic: 7 },
+                goldBonus: 2,
+                rainbowBonus: 3
+            },
+            bloodlit: {
+                points: { common: 2, uncommon: 3, rare: 5, legendary: 6, mythical: 8, divine: 9, prismatic: 11 },
+                goldBonus: 3,
+                rainbowBonus: 4
+            }
+        };
+
+        const fruitsByRarity = {
+            common: [
+                { name: 'Carrot', emoji: '🥕' },
+                { name: 'Strawberry', emoji: '🍓' },
+                { name: 'Chocolate Carrot', emoji: '🍫' }
+            ],
+            uncommon: [
+                { name: 'Blueberry', emoji: '🍇' },
+                { name: 'Orange Tulip', emoji: '🌷' },
+                { name: 'Nightshade', emoji: '🌿' },
+                { name: 'Red Lollipop', emoji: '🍭' }
+            ],
+            rare: [
+                { name: 'Tomato', emoji: '🍅' },
+                { name: 'Corn', emoji: '🌽' },
+                { name: 'Daffodil', emoji: '🌼' },
+                { name: 'Raspberry', emoji: '🍇' },
+                { name: 'Pear', emoji: '🍐' },
+                { name: 'Mint', emoji: '🌿' },
+                { name: 'Glowshroom', emoji: '🍄' },
+                { name: 'Candy Sunflower', emoji: '🌻' }
+            ],
+            legendary: [
+                { name: 'Watermelon', emoji: '🍉' },
+                { name: 'Pumpkin', emoji: '🎃' },
+                { name: 'Apple', emoji: '🍎' },
+                { name: 'Bamboo', emoji: '🎋' },
+                { name: 'Moonflower', emoji: '🌸' },
+                { name: 'Starfruit', emoji: '⭐' },
+                { name: 'Cranberry', emoji: '🍒' },
+                { name: 'Durian', emoji: '🥥' },
+                { name: 'Easter Egg', emoji: '🥚' },
+                { name: 'Papaya', emoji: '🥭' }
+            ],
+            mythical: [
+                { name: 'Coconut', emoji: '🥥' },
+                { name: 'Cactus', emoji: '🌵' },
+                { name: 'Dragon Fruit', emoji: '🐉' },
+                { name: 'Mango', emoji: '🥭' },
+                { name: 'Peach', emoji: '🍑' },
+                { name: 'Pineapple', emoji: '🍍' },
+                { name: 'Moonglow', emoji: '🌙' },
+                { name: 'Blood Banana', emoji: '🍌' },
+                { name: 'Moon Melon', emoji: '🍈' },
+                { name: 'Celestiberry', emoji: '✨' },
+                { name: 'Eggplant', emoji: '🍆' },
+                { name: 'Passionfruit', emoji: '💜' },
+                { name: 'Lemon', emoji: '🍋' },
+                { name: 'Banana', emoji: '🍌' }
+            ],
+            divine: [
+                { name: 'Grape', emoji: '🍇' },
+                { name: 'Mushroom', emoji: '🍄' },
+                { name: 'Pepper', emoji: '🌶️' },
+                { name: 'Cacao', emoji: '🍫' },
+                { name: 'Moon Blossom', emoji: '🌸' },
+                { name: 'Moon Mango', emoji: '🥭' },
+                { name: 'Cherry Blossom', emoji: '🌸' },
+                { name: 'Crimson Vine', emoji: '🍇' },
+                { name: 'Candy Blossom', emoji: '🍭' },
+                { name: 'Lotus', emoji: '🌼' },
+                { name: 'Venus Fly Trap', emoji: '🦜' },
+                { name: 'Cursed Fruit', emoji: '☠️' },
+                { name: 'Soul Fruit', emoji: '👻' }
+            ],
+            prismatic: [
+                { name: 'Beanstalk', emoji: '🌱' }
+            ]
+        };
+
+        function createFruitElement(fruit, rarity, type) {
+            const fruitItem = document.createElement('div');
+            fruitItem.className = 'fruit-item';
+            fruitItem.setAttribute('data-fruit-name', fruit.name.toLowerCase());
+            
+            fruitItem.innerHTML = `
+                <span class="fruit-emoji">${fruit.emoji}</span>
+                <span class="fruit-name">${fruit.name}</span>
+                <div class="fruit-inputs">
+                    <div class="input-group">
+                        <span class="input-label">Jumlah</span>
+                        <input type="number" class="fruit-input" min="0" value="0" data-fruit="${fruit.name}" data-type="${type}" data-rarity="${rarity}">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-label">Mutation</span>
+                        <select class="mutation-select" data-fruit="${fruit.name}" data-type="${type}">
+                            <option value="normal">Normal</option>
+                            <option value="gold">Gold</option>
+                            <option value="rainbow">Rainbow</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            return fruitItem;
+        }
+
+        function populateFruits() {
+            const moonlitContainer = document.getElementById('moonlit-container');
+            const bloodlitContainer = document.getElementById('bloodlit-container');
+            
+            Object.keys(fruitsByRarity).forEach(rarity => {
+                // Moonlit section
+                const moonlitSection = document.createElement('div');
+                moonlitSection.className = 'rarity-section';
+                moonlitSection.innerHTML = `
+                    <div class="rarity-title">
+                        <div class="rarity-indicator ${rarity}"></div>
+                        ${rarity.charAt(0).toUpperCase() + rarity.slice(1)} (${fruitData.moonlit.points[rarity]} LP)
+                    </div>
+                `;
+                
+                fruitsByRarity[rarity].forEach(fruit => {
+                    moonlitSection.appendChild(createFruitElement(fruit, rarity, 'moonlit'));
+                });
+                moonlitContainer.appendChild(moonlitSection);
+                
+                // Bloodlit section
+                const bloodlitSection = document.createElement('div');
+                bloodlitSection.className = 'rarity-section';
+                bloodlitSection.innerHTML = `
+                    <div class="rarity-title">
+                        <div class="rarity-indicator ${rarity}"></div>
+                        ${rarity.charAt(0).toUpperCase() + rarity.slice(1)} (${fruitData.bloodlit.points[rarity]} LP)
+                    </div>
+                `;
+                
+                fruitsByRarity[rarity].forEach(fruit => {
+                    bloodlitSection.appendChild(createFruitElement(fruit, rarity, 'bloodlit'));
+                });
+                bloodlitContainer.appendChild(bloodlitSection);
+            });
+        }
+
+        function setupSearch() {
+            const moonlitSearch = document.getElementById('moonlit-search');
+            const bloodlitSearch = document.getElementById('bloodlit-search');
+            
+            function filterFruits(searchTerm, container) {
+                const items = container.querySelectorAll('.fruit-item');
+                items.forEach(item => {
+                    const fruitName = item.getAttribute('data-fruit-name');
+                    if (fruitName.includes(searchTerm.toLowerCase())) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Hide empty sections
+                const sections = container.querySelectorAll('.rarity-section');
+                sections.forEach(section => {
+                    const visibleItems = section.querySelectorAll('.fruit-item[style*="flex"]');
+                    if (visibleItems.length === 0) {
+                        section.style.display = 'none';
+                    } else {
+                        section.style.display = 'block';
+                    }
+                });
+            }
+            
+            moonlitSearch.addEventListener('input', (e) => {
+                filterFruits(e.target.value, document.getElementById('moonlit-container'));
+            });
+            
+            bloodlitSearch.addEventListener('input', (e) => {
+                filterFruits(e.target.value, document.getElementById('bloodlit-container'));
+            });
+        }
+
+        function calculateTotal() {
+            let totalPoints = 0;
+            
+            const inputs = document.querySelectorAll('.fruit-input');
+            inputs.forEach(input => {
+                const quantity = parseInt(input.value) || 0;
+                if (quantity > 0) {
+                    const fruit = input.getAttribute('data-fruit');
+                    const type = input.getAttribute('data-type');
+                    const rarity = input.getAttribute('data-rarity');
+                    const mutationSelect = document.querySelector(`select[data-fruit="${fruit}"][data-type="${type}"]`);
+                    const mutation = mutationSelect.value;
+                    
+                    const basePoints = fruitData[type].points[rarity];
+                    let bonusPoints = 0;
+                    
+                    if (mutation === 'gold') {
+                        bonusPoints = fruitData[type].goldBonus;
+                    } else if (mutation === 'rainbow') {
+                        bonusPoints = fruitData[type].rainbowBonus;
+                    }
+                    
+                    // Base points for all fruits + bonus only for the mutated one
+                    totalPoints += (basePoints * quantity) + bonusPoints;
+                }
+            });
+            
+            document.getElementById('total-points').textContent = totalPoints;
+            document.getElementById('result').classList.remove('hidden');
+            
+            // Smooth scroll to result
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            populateFruits();
+            setupSearch();
+        });
+    </script>
+</body>
+</html>
