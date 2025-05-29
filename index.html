@@ -177,15 +177,24 @@
         .divine { background: #e67e22; }
         .prismatic { background: linear-gradient(45deg, #ff0080, #00ff80, #0080ff, #ff8000); }
 
+        .fruit-container {
+            margin-bottom: 8px;
+        }
+
         .fruit-item {
             display: flex;
             align-items: center;
             padding: 12px;
-            margin-bottom: 8px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
+            border-radius: 12px 12px 0 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .fruit-item:not(.expanded) {
+            border-radius: 12px;
         }
 
         .fruit-item:hover {
@@ -194,6 +203,12 @@
             box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2), 
                         0 0 20px rgba(255, 255, 255, 0.3);
             border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .fruit-item.expanded {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            border-bottom: none;
         }
 
         .fruit-emoji {
@@ -209,79 +224,124 @@
             font-size: 14px;
         }
 
-        .fruit-inputs {
+        .expand-indicator {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            margin-left: 8px;
+        }
+
+        .fruit-item.expanded .expand-indicator {
+            transform: rotate(180deg);
+        }
+
+        .mutation-subtabs {
+            margin-top: 0;
+            border-radius: 0 0 12px 12px;
+            background: rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-top: none;
+            overflow: hidden;
+            max-height: 0;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+        }
+
+        .mutation-subtabs.expanded {
+            max-height: 300px;
+            opacity: 1;
+            padding: 16px;
+        }
+
+        .mutation-tab {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .mutation-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .mutation-tab:last-child {
+            margin-bottom: 0;
+        }
+
+        .mutation-label {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
             align-items: center;
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .mutation-label.normal {
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        .input-label {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 4px;
+        .mutation-label.gold {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
-        .fruit-input {
-            width: 50px;
+        .mutation-label.rainbow {
+            background: linear-gradient(45deg, #FFB3BA, #FFDFBA, #FFFFBA, #BAFFC9, #BAE1FF, #C9BAFF, #FFBAF3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            background-size: 200% 200%;
+            animation: rainbow-shift 3s ease-in-out infinite;
+        }
+
+        @keyframes rainbow-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .mutation-icon {
+            margin-right: 8px;
+            font-size: 12px;
+        }
+
+        .mutation-input {
+            width: 60px;
             padding: 6px 8px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             text-align: center;
             font-size: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.3s ease;
             -webkit-appearance: none;
             -moz-appearance: textfield;
         }
 
-        .fruit-input::-webkit-outer-spin-button,
-        .fruit-input::-webkit-inner-spin-button {
+        .mutation-input::-webkit-outer-spin-button,
+        .mutation-input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
-        .fruit-input:hover {
+        .mutation-input:hover {
             background: rgba(255, 255, 255, 0.15);
             border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
-        .fruit-input:focus {
+        .mutation-input:focus {
             outline: none;
             background: rgba(255, 255, 255, 0.15);
             border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        .mutation-select {
-            width: 70px;
-            padding: 6px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 11px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .mutation-select:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-        }
-
-        .mutation-select option {
-            background: #2c3e50;
-            color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
 
         .calculate-section {
@@ -353,14 +413,8 @@
                 padding: 20px;
             }
             
-            .fruit-inputs {
+            .mutation-tab {
                 flex-direction: column;
-                gap: 4px;
-            }
-            
-            .fruit-item {
-                flex-direction: column;
-                align-items: flex-start;
                 gap: 8px;
             }
         }
@@ -497,30 +551,72 @@
         };
 
         function createFruitElement(fruit, rarity, type) {
+            const fruitContainer = document.createElement('div');
+            fruitContainer.className = 'fruit-container';
+            fruitContainer.setAttribute('data-fruit-name', fruit.name.toLowerCase());
+            
             const fruitItem = document.createElement('div');
             fruitItem.className = 'fruit-item';
-            fruitItem.setAttribute('data-fruit-name', fruit.name.toLowerCase());
-            
             fruitItem.innerHTML = `
                 <span class="fruit-emoji">${fruit.emoji}</span>
                 <span class="fruit-name">${fruit.name}</span>
-                <div class="fruit-inputs">
-                    <div class="input-group">
-                        <span class="input-label">Jumlah</span>
-                        <input type="number" class="fruit-input" min="0" value="0" data-fruit="${fruit.name}" data-type="${type}" data-rarity="${rarity}">
+                <span class="expand-indicator">▼</span>
+            `;
+            
+            const mutationSubtabs = document.createElement('div');
+            mutationSubtabs.className = 'mutation-subtabs';
+            mutationSubtabs.innerHTML = `
+                <div class="mutation-tab">
+                    <div class="mutation-label normal">
+                        <span class="mutation-icon">⚪</span>
+                        Normal
                     </div>
-                    <div class="input-group">
-                        <span class="input-label">Mutation</span>
-                        <select class="mutation-select" data-fruit="${fruit.name}" data-type="${type}">
-                            <option value="normal">Normal</option>
-                            <option value="gold">Gold</option>
-                            <option value="rainbow">Rainbow</option>
-                        </select>
+                    <input type="number" class="mutation-input" min="0" value="0" 
+                           data-fruit="${fruit.name}" data-type="${type}" data-rarity="${rarity}" data-mutation="normal">
+                </div>
+                <div class="mutation-tab">
+                    <div class="mutation-label gold">
+                        <span class="mutation-icon">🟡</span>
+                        Gold
                     </div>
+                    <input type="number" class="mutation-input" min="0" value="0" 
+                           data-fruit="${fruit.name}" data-type="${type}" data-rarity="${rarity}" data-mutation="gold">
+                </div>
+                <div class="mutation-tab">
+                    <div class="mutation-label rainbow">
+                        <span class="mutation-icon">🌈</span>
+                        Rainbow
+                    </div>
+                    <input type="number" class="mutation-input" min="0" value="0" 
+                           data-fruit="${fruit.name}" data-type="${type}" data-rarity="${rarity}" data-mutation="rainbow">
                 </div>
             `;
             
-            return fruitItem;
+            fruitItem.addEventListener('click', () => {
+                const isExpanded = fruitItem.classList.contains('expanded');
+                
+                // Close all other expanded fruits
+                document.querySelectorAll('.fruit-item.expanded').forEach(item => {
+                    if (item !== fruitItem) {
+                        item.classList.remove('expanded');
+                        item.parentNode.querySelector('.mutation-subtabs').classList.remove('expanded');
+                    }
+                });
+                
+                // Toggle current fruit
+                if (isExpanded) {
+                    fruitItem.classList.remove('expanded');
+                    mutationSubtabs.classList.remove('expanded');
+                } else {
+                    fruitItem.classList.add('expanded');
+                    mutationSubtabs.classList.add('expanded');
+                }
+            });
+            
+            fruitContainer.appendChild(fruitItem);
+            fruitContainer.appendChild(mutationSubtabs);
+            
+            return fruitContainer;
         }
 
         function populateFruits() {
@@ -565,11 +661,11 @@
             const bloodlitSearch = document.getElementById('bloodlit-search');
             
             function filterFruits(searchTerm, container) {
-                const items = container.querySelectorAll('.fruit-item');
+                const items = container.querySelectorAll('.fruit-container');
                 items.forEach(item => {
                     const fruitName = item.getAttribute('data-fruit-name');
                     if (fruitName.includes(searchTerm.toLowerCase())) {
-                        item.style.display = 'flex';
+                        item.style.display = 'block';
                     } else {
                         item.style.display = 'none';
                     }
@@ -578,8 +674,12 @@
                 // Hide empty sections
                 const sections = container.querySelectorAll('.rarity-section');
                 sections.forEach(section => {
-                    const visibleItems = section.querySelectorAll('.fruit-item[style*="flex"]');
-                    if (visibleItems.length === 0) {
+                    const visibleItems = section.querySelectorAll('.fruit-container[style*="block"], .fruit-container:not([style])');
+                    const hasVisibleItems = Array.from(visibleItems).some(item => 
+                        !item.style.display || item.style.display !== 'none'
+                    );
+                    
+                    if (!hasVisibleItems) {
                         section.style.display = 'none';
                     } else {
                         section.style.display = 'block';
@@ -599,15 +699,13 @@
         function calculateTotal() {
             let totalPoints = 0;
             
-            const inputs = document.querySelectorAll('.fruit-input');
+            const inputs = document.querySelectorAll('.mutation-input');
             inputs.forEach(input => {
                 const quantity = parseInt(input.value) || 0;
                 if (quantity > 0) {
-                    const fruit = input.getAttribute('data-fruit');
                     const type = input.getAttribute('data-type');
                     const rarity = input.getAttribute('data-rarity');
-                    const mutationSelect = document.querySelector(`select[data-fruit="${fruit}"][data-type="${type}"]`);
-                    const mutation = mutationSelect.value;
+                    const mutation = input.getAttribute('data-mutation');
                     
                     const basePoints = fruitData[type].points[rarity];
                     let bonusPoints = 0;
